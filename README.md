@@ -47,6 +47,15 @@ NASA Space Apps Challenge 2026 — *Adapting Farms with NASA Data* (Cincinnati l
 5. An optional AI layer (Claude) turns the computed results into a plain-language recommendation;
    all numbers come from the data, not the model.
 
+## Try it on the web
+**https://siddarthareddy8.github.io/fieldwise/** (Ohio only).
+
+GitHub Pages can't run Python, so `scripts/build_pages.py` precomputes the full analysis for all 54 NASA POWER
+grid cells over Ohio at three harvest-date presets (early, typical, late) into `docs/`. The page snaps your pin to
+its grid cell and the nearest preset, and says so on screen. NASA POWER weather is the same anywhere inside one
+cell, so the dates and odds match the full app for that cell; soil comes from the cell center. The 7-day forecast
+is fetched live from Open-Meteo in your browser. For your exact field and harvest dates, run it locally:
+
 ## Run
 ```bash
 uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python fastapi "uvicorn[standard]" httpx anthropic python-dotenv scikit-learn numpy
