@@ -213,7 +213,8 @@ $("#find").addEventListener("submit", async e => {
   const q = $("#addr").value.trim(); if (!q) return;
   $("#loc").textContent = "Searching…";
   try {
-    const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=${encodeURIComponent(q)}`);
+    // prefer Ohio (the web version only covers Ohio, so it searches inside Ohio only)
+    const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&viewbox=-84.9,42.1,-80.4,38.3${STATIC ? "&bounded=1" : ""}&q=${encodeURIComponent(q)}`);
     const [hit] = await r.json();
     if (!hit) { $("#loc").textContent = `No match for “${q}”. Try a town name, or click the map.`; return; }
     map.setView([+hit.lat, +hit.lon], 14);
