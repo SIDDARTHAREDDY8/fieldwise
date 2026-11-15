@@ -225,7 +225,7 @@ $("#find").addEventListener("submit", async e => {
 document.querySelectorAll("#prio button").forEach(b => b.onclick = () => {
   document.querySelectorAll("#prio button").forEach(x => x.setAttribute("aria-pressed", "false"));
   b.setAttribute("aria-pressed", "true"); priority = b.dataset.p;
-  if (last) run();  // re-rank straight away once a field has been checked
+  if (last) run(true);  // re-rank straight away once a field has been checked
 });
 
 /* ---------- planting calendar ---------- */
@@ -647,7 +647,7 @@ async function staticWeek(a) {  // same field-day rule as the server's /api/week
 }
 
 const md = v => v ? v.slice(5) : "";
-async function run() {
+async function run(silent = false) {
   const btn = $("#go"); btn.disabled = true; btn.textContent = "Checking 25 years of weather…";
   try {
     if (STATIC) last = await staticAnalyze();
@@ -658,12 +658,13 @@ async function run() {
       last = await r.json();
     }
     render(last); explain(last);
-    if (last.static_note) $("#out").insertAdjacentHTML("afterbegin", `<p class="hint">${esc(last.static_note)}</p>`);
+    if (last.static_note) $("#out").insertAdjacentHTML("afterbegin", `<p class="hint" style="margin:0 0 16px">${esc(last.static_note)}</p>`);
     history.replaceState(null, "", shareUrl());
+    if (innerWidth < 860 && !silent) $("#out").scrollIntoView({block: "start"});  // phones: results sit below the form
   } catch (e) { $("#out").innerHTML = `<p class="err">${esc(e.message)}</p>`; }
   finally { btn.disabled = false; btn.textContent = "Check my field"; }
 }
-$("#go").onclick = run;
+$("#go").onclick = () => run();
 (() => {  // open a shared field link: ?lat=..&lon=..&soy=YYYY-MM-DD&corn=YYYY-MM-DD&p=soil
   const q = new URLSearchParams(location.search), la = parseFloat(q.get("lat")), lo = parseFloat(q.get("lon"));
   if (isNaN(la) || isNaN(lo)) return;

@@ -192,7 +192,6 @@ def evaluate(c: Climate, lat: float, a: dict | None = None) -> dict:
         cold = sum(1 for _, r in c.days(date(y, 12, 1), date(y + 1, 2, 28)) if (r.get("T2M_MIN") or 0) <= a["wheat_coldkill_c"])
         per.append({"year": y, "ok": g >= a["wheat_min_gdd0"], "metric": round(g), "cold_days": cold, "plant": plant.isoformat()})
     cold_years = [p["year"] + 1 for p in per if p["cold_days"] >= 2]
-    wheat_per = per
     options.append({
         "id": "wheat", "kind": "rotation", "name": "Add winter wheat: corn → soybean → wheat",
         "per_year": per, **_summ(per),

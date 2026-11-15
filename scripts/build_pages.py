@@ -11,7 +11,6 @@ center instead of the exact pin. The 7-day forecast is fetched live from Open-Me
 from __future__ import annotations
 
 import json
-import shutil
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
