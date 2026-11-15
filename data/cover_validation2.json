@@ -1,0 +1,162 @@
+{
+ "attempt": 2,
+ "method": "spring Mar-Apr, NDVI relative to same-image median",
+ "year": 2017,
+ "folds": {
+  "fold1": {
+   "threshold": 0.18,
+   "r_train": -0.28,
+   "r_test": -0.01,
+   "n_test": 13
+  },
+  "fold2": {
+   "threshold": 0.12,
+   "r_train": 0.29,
+   "r_test": -0.4,
+   "n_test": 14
+  }
+ },
+ "threshold": 0.15,
+ "r_heldout_mean": -0.21,
+ "r_all": -0.14,
+ "n_counties": 27,
+ "points": 810,
+ "counties": {
+  "39003": {
+   "name": "Allen",
+   "satellite_pct": 10.0,
+   "census_pct": 5.82
+  },
+  "39039": {
+   "name": "Defiance",
+   "satellite_pct": 16.7,
+   "census_pct": 8.0
+  },
+  "39063": {
+   "name": "Hancock",
+   "satellite_pct": 0.0,
+   "census_pct": 7.99
+  },
+  "39069": {
+   "name": "Henry",
+   "satellite_pct": 3.3,
+   "census_pct": 5.26
+  },
+  "39095": {
+   "name": "Lucas",
+   "satellite_pct": 3.3,
+   "census_pct": 9.72
+  },
+  "39125": {
+   "name": "Paulding",
+   "satellite_pct": 6.7,
+   "census_pct": 9.1
+  },
+  "39137": {
+   "name": "Putnam",
+   "satellite_pct": 10.0,
+   "census_pct": 13.47
+  },
+  "39161": {
+   "name": "Van Wert",
+   "satellite_pct": 3.3,
+   "census_pct": 7.06
+  },
+  "39171": {
+   "name": "Williams",
+   "satellite_pct": 3.4,
+   "census_pct": 14.11
+  },
+  "39005": {
+   "name": "Ashland",
+   "satellite_pct": 16.7,
+   "census_pct": 12.13
+  },
+  "39033": {
+   "name": "Crawford",
+   "satellite_pct": 3.3,
+   "census_pct": 6.24
+  },
+  "39077": {
+   "name": "Huron",
+   "satellite_pct": 3.3,
+   "census_pct": 6.35
+  },
+  "39093": {
+   "name": "Lorain",
+   "satellite_pct": 6.7,
+   "census_pct": 7.9
+  },
+  "39123": {
+   "name": "Ottawa",
+   "satellite_pct": 6.7,
+   "census_pct": 13.18
+  },
+  "39139": {
+   "name": "Richland",
+   "satellite_pct": 6.7,
+   "census_pct": 7.25
+  },
+  "39143": {
+   "name": "Sandusky",
+   "satellite_pct": 26.7,
+   "census_pct": 6.87
+  },
+  "39147": {
+   "name": "Seneca",
+   "satellite_pct": 10.0,
+   "census_pct": 13.12
+  },
+  "39175": {
+   "name": "Wyandot",
+   "satellite_pct": 10.0,
+   "census_pct": 6.24
+  },
+  "39007": {
+   "name": "Ashtabula",
+   "satellite_pct": 18.2,
+   "census_pct": 2.52
+  },
+  "39029": {
+   "name": "Columbiana",
+   "satellite_pct": 3.3,
+   "census_pct": 11.13
+  },
+  "39055": {
+   "name": "Geauga",
+   "satellite_pct": 15.4,
+   "census_pct": 3.48
+  },
+  "39085": {
+   "name": "Lake",
+   "satellite_pct": 13.3,
+   "census_pct": 6.4
+  },
+  "39099": {
+   "name": "Mahoning",
+   "satellite_pct": 0.0,
+   "census_pct": 4.85
+  },
+  "39103": {
+   "name": "Medina",
+   "satellite_pct": 13.3,
+   "census_pct": 5.03
+  },
+  "39133": {
+   "name": "Portage",
+   "satellite_pct": 13.3,
+   "census_pct": 11.22
+  },
+  "39151": {
+   "name": "Stark",
+   "satellite_pct": 13.3,
+   "census_pct": 7.76
+  },
+  "39153": {
+   "name": "Summit",
+   "satellite_pct": 10.0,
+   "census_pct": 4.09
+  }
+ },
+ "attempt1": "Dec-Mar absolute NDVI, 10 points/county: r = -0.09 on held-out counties (no relationship)"
+}

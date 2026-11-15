@@ -1,0 +1,215 @@
+{
+ "results": {
+  "2017_fold1": {
+   "threshold": 0.22,
+   "r_train": 0.36,
+   "r_test": 0.17,
+   "n_counties": 13
+  },
+  "2017_fold2": {
+   "threshold": 0.38,
+   "r_train": 0.46,
+   "r_test": -0.36,
+   "n_counties": 14
+  },
+  "train2017_test2022": {
+   "threshold": 0.3,
+   "r_test": -0.09,
+   "r_all": -0.11,
+   "n_counties": 27,
+   "note": "2017 only; held-out half of counties"
+  }
+ },
+ "threshold_used": 0.3,
+ "counties": {
+  "39003": {
+   "name": "Allen",
+   "2017": {
+    "satellite_pct": 70.0,
+    "census_pct": 5.82
+   }
+  },
+  "39039": {
+   "name": "Defiance",
+   "2017": {
+    "satellite_pct": 40.0,
+    "census_pct": 8.0
+   }
+  },
+  "39063": {
+   "name": "Hancock",
+   "2017": {
+    "satellite_pct": 30.0,
+    "census_pct": 7.99
+   }
+  },
+  "39069": {
+   "name": "Henry",
+   "2017": {
+    "satellite_pct": 20.0,
+    "census_pct": 5.26
+   }
+  },
+  "39095": {
+   "name": "Lucas",
+   "2017": {
+    "satellite_pct": 20.0,
+    "census_pct": 9.72
+   }
+  },
+  "39125": {
+   "name": "Paulding",
+   "2017": {
+    "satellite_pct": 40.0,
+    "census_pct": 9.1
+   }
+  },
+  "39137": {
+   "name": "Putnam",
+   "2017": {
+    "satellite_pct": 40.0,
+    "census_pct": 13.47
+   }
+  },
+  "39161": {
+   "name": "Van Wert",
+   "2017": {
+    "satellite_pct": 20.0,
+    "census_pct": 7.06
+   }
+  },
+  "39171": {
+   "name": "Williams",
+   "2017": {
+    "satellite_pct": 10.0,
+    "census_pct": 14.11
+   }
+  },
+  "39005": {
+   "name": "Ashland",
+   "2017": {
+    "satellite_pct": 40.0,
+    "census_pct": 12.13
+   }
+  },
+  "39033": {
+   "name": "Crawford",
+   "2017": {
+    "satellite_pct": 20.0,
+    "census_pct": 6.24
+   }
+  },
+  "39077": {
+   "name": "Huron",
+   "2017": {
+    "satellite_pct": 0.0,
+    "census_pct": 6.35
+   }
+  },
+  "39093": {
+   "name": "Lorain",
+   "2017": {
+    "satellite_pct": 40.0,
+    "census_pct": 7.9
+   }
+  },
+  "39123": {
+   "name": "Ottawa",
+   "2017": {
+    "satellite_pct": 40.0,
+    "census_pct": 13.18
+   }
+  },
+  "39139": {
+   "name": "Richland",
+   "2017": {
+    "satellite_pct": 20.0,
+    "census_pct": 7.25
+   }
+  },
+  "39143": {
+   "name": "Sandusky",
+   "2017": {
+    "satellite_pct": 30.0,
+    "census_pct": 6.87
+   }
+  },
+  "39147": {
+   "name": "Seneca",
+   "2017": {
+    "satellite_pct": 20.0,
+    "census_pct": 13.12
+   }
+  },
+  "39175": {
+   "name": "Wyandot",
+   "2017": {
+    "satellite_pct": 10.0,
+    "census_pct": 6.24
+   }
+  },
+  "39007": {
+   "name": "Ashtabula",
+   "2017": {
+    "satellite_pct": 42.9,
+    "census_pct": 2.52
+   }
+  },
+  "39029": {
+   "name": "Columbiana",
+   "2017": {
+    "satellite_pct": 20.0,
+    "census_pct": 11.13
+   }
+  },
+  "39055": {
+   "name": "Geauga",
+   "2017": {
+    "satellite_pct": 40.0,
+    "census_pct": 3.48
+   }
+  },
+  "39085": {
+   "name": "Lake",
+   "2017": {
+    "satellite_pct": 40.0,
+    "census_pct": 6.4
+   }
+  },
+  "39099": {
+   "name": "Mahoning",
+   "2017": {
+    "satellite_pct": 40.0,
+    "census_pct": 4.85
+   }
+  },
+  "39103": {
+   "name": "Medina",
+   "2017": {
+    "satellite_pct": 40.0,
+    "census_pct": 5.03
+   }
+  },
+  "39133": {
+   "name": "Portage",
+   "2017": {
+    "satellite_pct": 50.0,
+    "census_pct": 11.22
+   }
+  },
+  "39151": {
+   "name": "Stark",
+   "2017": {
+    "satellite_pct": 50.0,
+    "census_pct": 7.76
+   }
+  },
+  "39153": {
+   "name": "Summit",
+   "2017": {
+    "satellite_pct": 30.0,
+    "census_pct": 4.09
+   }
+  }
+ }
+}

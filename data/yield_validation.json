@@ -1,0 +1,77 @@
+{
+ "corn": {
+  "county_years": 1965,
+  "years": "2001-2025",
+  "mae_trend_only": 16.2,
+  "mae_with_weather": 13.4,
+  "r2_weather_effect": 0.31,
+  "r_statewide_year": 0.74,
+  "worst_years": [
+   {
+    "year": 2002,
+    "actual_vs_trend": -46.5,
+    "model_vs_trend": -13.6
+   },
+   {
+    "year": 2012,
+    "actual_vs_trend": -33.9,
+    "model_vs_trend": -9.4
+   },
+   {
+    "year": 2024,
+    "actual_vs_trend": -17.5,
+    "model_vs_trend": -20.9
+   }
+  ]
+ },
+ "soybeans": {
+  "county_years": 1873,
+  "years": "2001-2025",
+  "mae_trend_only": 4.6,
+  "mae_with_weather": 4.2,
+  "r2_weather_effect": 0.17,
+  "r_statewide_year": 0.55,
+  "worst_years": [
+   {
+    "year": 2002,
+    "actual_vs_trend": -9.7,
+    "model_vs_trend": -5.3
+   },
+   {
+    "year": 2008,
+    "actual_vs_trend": -8.2,
+    "model_vs_trend": -2.8
+   },
+   {
+    "year": 2024,
+    "actual_vs_trend": -7.7,
+    "model_vs_trend": -3.1
+   }
+  ]
+ },
+ "wheat": {
+  "county_years": 1429,
+  "years": "2002-2025",
+  "mae_trend_only": 7.0,
+  "mae_with_weather": 7.0,
+  "r2_weather_effect": 0.03,
+  "r_statewide_year": 0.4,
+  "worst_years": [
+   {
+    "year": 2019,
+    "actual_vs_trend": -17.2,
+    "model_vs_trend": -1.2
+   },
+   {
+    "year": 2011,
+    "actual_vs_trend": -12.4,
+    "model_vs_trend": -5.1
+   },
+   {
+    "year": 2010,
+    "actual_vs_trend": -5.6,
+    "model_vs_trend": -1.2
+   }
+  ]
+ }
+}

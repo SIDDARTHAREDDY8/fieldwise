@@ -1,0 +1,40 @@
+278 spring scenes for 810 points in 27 counties
+  20/278 scenes, 7s
+  40/278 scenes, 29s
+  60/278 scenes, 67s
+  80/278 scenes, 113s
+  100/278 scenes, 134s
+  120/278 scenes, 147s
+  140/278 scenes, 178s
+  160/278 scenes, 203s
+  180/278 scenes, 211s
+  200/278 scenes, 232s
+  220/278 scenes, 263s
+  240/278 scenes, 291s
+  260/278 scenes, 314s
+  278/278 scenes, 437s
+{
+ "attempt": 2,
+ "method": "spring Mar-Apr, NDVI relative to same-image median",
+ "year": 2017,
+ "folds": {
+  "fold1": {
+   "threshold": 0.18,
+   "r_train": -0.28,
+   "r_test": -0.01,
+   "n_test": 13
+  },
+  "fold2": {
+   "threshold": 0.12,
+   "r_train": 0.29,
+   "r_test": -0.4,
+   "n_test": 14
+  }
+ },
+ "threshold": 0.15,
+ "r_heldout_mean": -0.21,
+ "r_all": -0.14,
+ "n_counties": 27,
+ "points": 810,
+ "attempt1": "Dec-Mar absolute NDVI, 10 points/county: r = -0.09 on held-out counties (no relationship)"
+}

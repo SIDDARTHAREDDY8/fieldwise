@@ -1,0 +1,9 @@
+.venv/
+.env
+data/cache/
+__pycache__/
+data/raw/gaz.zip
+data/cdl/
+.claude/
+.DS_Store
+*.pyc

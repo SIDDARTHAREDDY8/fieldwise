@@ -1,0 +1,60 @@
+2017: 372 scenes to read for 270 points
+  10/372 scenes, 0s
+  20/372 scenes, 6s
+  30/372 scenes, 16s
+  40/372 scenes, 22s
+  50/372 scenes, 41s
+  60/372 scenes, 45s
+  70/372 scenes, 50s
+  80/372 scenes, 54s
+  90/372 scenes, 57s
+  100/372 scenes, 58s
+  110/372 scenes, 61s
+  120/372 scenes, 63s
+  130/372 scenes, 65s
+  140/372 scenes, 65s
+  150/372 scenes, 67s
+  160/372 scenes, 69s
+  170/372 scenes, 71s
+  180/372 scenes, 79s
+  190/372 scenes, 87s
+  200/372 scenes, 92s
+  210/372 scenes, 101s
+  220/372 scenes, 107s
+  230/372 scenes, 116s
+  240/372 scenes, 121s
+  250/372 scenes, 132s
+  260/372 scenes, 137s
+  270/372 scenes, 145s
+  280/372 scenes, 159s
+  290/372 scenes, 163s
+  300/372 scenes, 182s
+  310/372 scenes, 196s
+  320/372 scenes, 197s
+  330/372 scenes, 212s
+  340/372 scenes, 214s
+  350/372 scenes, 219s
+  360/372 scenes, 230s
+  370/372 scenes, 259s
+  372/372 scenes, 288s
+{
+ "2017_fold1": {
+  "threshold": 0.22,
+  "r_train": 0.36,
+  "r_test": 0.17,
+  "n_counties": 13
+ },
+ "2017_fold2": {
+  "threshold": 0.38,
+  "r_train": 0.46,
+  "r_test": -0.36,
+  "n_counties": 14
+ },
+ "train2017_test2022": {
+  "threshold": 0.3,
+  "r_test": -0.09,
+  "r_all": -0.11,
+  "n_counties": 27,
+  "note": "2017 only; held-out half of counties"
+ }
+}
