@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en" data-static="1">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FieldWise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root{
+  --paper:#eef1ea; --sheet:#fbfcf9; --ink:#23362b; --muted:#5b6b60; --rule:#d5dccf;
+  --crop:#3f7d3c; --wheat:#d7a52a; --soil:#8a4b2f; --water:#2c5d86;
+  --crop-wash:#e1ecdb; --wheat-wash:#f6ebcc; --soil-wash:#efe2da;
+  --head:"Archivo Narrow",system-ui,sans-serif; --body:"Atkinson Hyperlegible",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font:17px/1.55 var(--body);background:var(--paper);color:var(--ink)}
+:focus-visible{outline:3px solid var(--water);outline-offset:2px}
+.top{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;padding:14px 22px;background:var(--ink);color:var(--paper)}
+.top h1{font:700 26px/1 var(--head);letter-spacing:.01em;margin:0}
+.top p{margin:0;opacity:.85;max-width:70ch}
+.layout{display:grid;grid-template-columns:minmax(380px,580px) 1fr;height:calc(100vh - 56px)}
+.side{overflow:auto;background:var(--sheet);border-right:1px solid var(--rule)}
+.pad{padding:18px 22px 40px}
+h2{font:700 22px/1.2 var(--head);margin:30px 0 8px}
+h3{font:600 19px/1.25 var(--head);margin:0}
+.lede{color:var(--muted);margin:0 0 10px;max-width:62ch}
+.controls{display:grid;gap:14px;padding:18px 22px;border-bottom:1px solid var(--rule)}
+.controls label,.controls .lbl{font-weight:700;display:block;margin-bottom:4px}
+.where{color:var(--muted);font-size:15px}
+.row{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+input[type=search],input[type=date]{padding:8px 9px;border:1.5px solid var(--rule);border-radius:6px;font:inherit;background:#fff;color:var(--ink)}
+input[type=search]{flex:1;min-width:200px}
+.btn2{border:1.5px solid var(--ink);border-radius:6px;background:transparent;padding:8px 14px;font:inherit;color:var(--ink);cursor:pointer}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--ink);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:8px 13px;font:inherit;color:var(--ink);cursor:pointer}
+.seg button+button{border-left:1.5px solid var(--ink)}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+.go{background:var(--crop);color:#fff;border:0;border-radius:6px;padding:12px 20px;font:700 18px/1 var(--head);letter-spacing:.02em;cursor:pointer}
+.go:disabled{opacity:.6;cursor:progress}
+.hint{color:var(--muted);font-size:15px;margin:0}
+
+/* answer first */
+.answer{background:var(--crop-wash);border-left:5px solid var(--crop);padding:14px 16px;border-radius:0 6px 6px 0}
+.answer p{margin:0 0 8px}.answer p:last-of-type{margin-bottom:0}
+.answer small{display:block;color:var(--muted);margin-top:8px;font-size:13px}
+.fall{border-left:5px solid var(--water);background:#e3ebf2;padding:12px 16px;border-radius:0 6px 6px 0;margin-top:14px}
+.fall h3{margin-bottom:4px}.fall p{margin:0}
+
+/* the planting calendar */
+.cal{margin:8px 0 4px}
+.cal svg{width:100%;height:auto;display:block}
+.cal .row-label{font:600 15px var(--head);fill:var(--ink)}
+.cal .tick{font:500 12px var(--head);fill:var(--muted)}
+.cal .dl{font:700 13px var(--head);fill:var(--ink)}
+.cal .today{font:700 13px var(--head);fill:var(--water)}
+.scale{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);margin:2px 0 0}
+.scale i{display:inline-block;width:120px;height:10px;border-radius:2px;background:linear-gradient(90deg,var(--soil),var(--wheat),var(--crop))}
+.verdicts{list-style:none;padding:0;margin:12px 0 0}
+.verdicts li{padding:9px 0 9px 12px;border-left:4px solid var(--crop);margin:6px 0;background:linear-gradient(90deg,var(--crop-wash),transparent 70%)}
+.verdicts li.late{border-left-color:var(--soil);background:linear-gradient(90deg,var(--soil-wash),transparent 70%)}
+.verdicts b.big{font-family:var(--head);font-size:18px}
+.verdicts .sub{display:block;color:var(--muted);font-size:15px}
+
+/* options */
+.opt{padding:16px 0;border-top:1px solid var(--rule)}
+.opt:first-of-type{border-top:0}
+.opt-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.best{font:700 13px/1 var(--head);letter-spacing:.02em;background:var(--crop);color:#fff;padding:4px 8px;border-radius:4px;white-space:nowrap}
+.odds{font:700 20px/1.1 var(--head);margin-top:4px}
+.odds small{font:400 15px var(--body);color:var(--muted)}
+.strip{display:flex;gap:2px;margin:8px 0 4px;flex-wrap:wrap}
+.strip span{width:15px;height:18px;border-radius:2px}
+.ok{background:var(--crop)}.no{background:var(--soil)}.warn{background:var(--wheat)}
+.legend{font-size:14px;color:var(--muted)}
+.risk{font-size:15px;border-left:3px solid var(--wheat);background:var(--wheat-wash);padding:7px 10px;margin-top:8px}
+.bars{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:14px;color:var(--muted);margin-top:10px;max-width:340px}
+.bars span:nth-child(even){align-self:center;height:7px;border-radius:4px;background:var(--rule);position:relative}
+.bars span:nth-child(even)::after{content:"";position:absolute;inset:0;width:var(--v);background:var(--ink);border-radius:4px}
+
+/* your field */
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;margin:8px 0}
+.facts div{border-top:2px solid var(--ink);padding-top:4px}
+.facts b{display:block;font:700 22px/1.1 var(--head)}
+.facts span{font-size:14px;color:var(--muted)}
+.foot{margin-top:30px;padding-top:14px;border-top:1px solid var(--rule);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.err{color:var(--soil);font-weight:700}
+.empty{color:var(--muted);padding:6px 0}
+
+
+/* this week */
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:6px 0 8px}
+.day{border-radius:6px;padding:6px 4px;text-align:center;font-size:13px;line-height:1.3;display:flex;flex-direction:column;gap:1px}
+.day b{font:700 15px var(--head)}
+.day em{font-style:normal;font-weight:700;font-size:12px}
+.day i{font-style:normal;font-size:11px;color:var(--water);font-weight:700}
+.day.fit{background:var(--crop-wash);border-top:4px solid var(--crop)}
+.day.wet{background:var(--soil-wash);border-top:4px solid var(--soil)}
+.todo{list-style:none;padding:0;margin:8px 0 0}
+.todo li{display:grid;grid-template-columns:78px 1fr;gap:12px;padding:10px 0;border-top:1px solid var(--rule)}
+.todo li:first-child{border-top:0}
+.todo time{font:700 20px/1 var(--head)}
+.todo time small{display:block;font:400 13px var(--body);color:var(--muted);margin-top:4px}
+.todo b{display:block;font:700 17px/1.25 var(--head)}
+.todo span{color:var(--muted);font-size:15px}
+.verdicts li.spare{border-left-color:var(--water);background:linear-gradient(90deg,#e3ebf2,transparent 70%)}
+.risk a{color:var(--ink)}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 4px}
+.acts .btn2{font-size:15px}
+.trend svg{width:100%;height:auto;display:block}
+.trend .ax{font:13px var(--body);fill:var(--muted)}
+.facts3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:10px 0}
+.facts3 div{border-top:3px solid var(--rule);padding-top:8px}
+.facts3 b{display:block;font:700 24px/1.1 var(--head)}
+.facts3 span{color:var(--muted);font-size:14px}
+@media (max-width:560px){.facts3{grid-template-columns:1fr}}
+@media print{.acts{display:none}}
+.weekline{margin:4px 0 6px}
+/* decide + money */
+.decide{border-left:5px solid var(--wheat);background:var(--wheat-wash);padding:14px 16px;border-radius:0 6px 6px 0}
+.decide.pos{border-left-color:var(--crop);background:var(--crop-wash)}
+.decide.neg{border-left-color:var(--soil);background:var(--soil-wash)}
+.decide .big{font:700 20px/1.3 var(--head);margin:0 0 10px}
+.compare{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:8px}
+.compare div{border-top:2px solid var(--ink);padding-top:4px}
+.compare span{display:block;font-size:14px;color:var(--muted)}
+.compare b{display:block;font:700 22px/1.1 var(--head)}
+.compare small{font-size:12px;color:var(--muted)}
+.checks{margin:6px 0 0;padding-left:20px}.checks li{margin:3px 0}
+.ytab{width:100%;border-collapse:collapse;font-size:15px}
+.ytab th,.ytab td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--rule);vertical-align:bottom}
+.ytab thead th{font:600 14px var(--head);color:var(--muted)}
+.ytab tbody th{font:700 17px var(--head)}
+.ytab tr.why td{border-bottom:1px solid var(--rule);font-size:13px;color:var(--muted);padding-top:0}
+.ytab tr:has(+ tr.why) th,.ytab tr:has(+ tr.why) td{border-bottom:0}
+.pos{color:var(--crop)}.neg{color:var(--soil)}
+.prices{margin:12px 0}.prices summary{cursor:pointer;font-weight:700}
+.moneygrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 12px;margin:8px 0}
+.money{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+.money input{font:inherit;font-size:16px;color:var(--ink);padding:5px 6px;border:1.5px solid var(--rule);border-radius:6px;width:100%}
+@media (max-width:560px){.days{grid-template-columns:repeat(4,1fr)}.compare,.moneygrid{grid-template-columns:1fr 1fr}}
+.mapwrap{position:relative}
+#map{height:100%;background:#dfe5da}
+@media (max-width:860px){.layout{grid-template-columns:1fr;height:auto}.mapwrap{height:340px;order:-1}#map{height:340px}.facts{grid-template-columns:1fr}}
+@media print{.top,.controls,.mapwrap,.foot,.prices{display:none!important}.layout{display:block;height:auto}.side{overflow:visible;border:0}body{background:#fff}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>FieldWise</h1>
+  <p>Cover crop or a third crop? Your field's last safe planting dates, from 25 years of NASA weather records.</p>
+</header>
+<div class="layout">
+  <section class="side" aria-label="Your field">
+    <div class="controls">
+      <div><label for="addr">Your field</label>
+        <form id="find" class="row" style="gap:8px">
+          <input type="search" id="addr" placeholder="Town or road, e.g. Oxford, Ohio">
+          <button type="submit" class="btn2">Find</button>
+        </form>
+        <span class="where" id="loc">Search, then click your field on the map. The pin starts on a corn and soybean field near Hamilton, Ohio.</span></div>
+      <div class="row">
+        <div><label for="soy">Soybeans come off</label><input type="date" id="soy"></div>
+        <div><label for="corn">Corn comes off</label><input type="date" id="corn"></div>
+      </div>
+      <div><span class="lbl" id="prio-l">What matters most to you</span>
+        <div class="seg" role="group" aria-labelledby="prio-l" id="prio">
+          <button data-p="soil" aria-pressed="true">Building soil</button>
+          <button data-p="risk" aria-pressed="false">Sure thing</button>
+          <button data-p="profit" aria-pressed="false">Income</button>
+        </div></div>
+      <div><button class="go" id="go">Check my field</button></div>
+    </div>
+    <div class="pad" id="out"><p class="empty">Find your field, set your harvest dates and press <b>Check my field</b>. It takes a few seconds.</p></div>
+  </section>
+  <div class="mapwrap">
+    <div id="map" role="application" aria-label="Map: click to choose your field"></div>
+  </div>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const fmt = md => { if (!md) return "—"; const [m, d] = md.split("-").map(Number); return `${MON[m - 1]} ${d}`; };
+const doy = md => { const [m, d] = md.split("-").map(Number); return (Date.UTC(2001, m - 1, d) - Date.UTC(2001, 0, 1)) / 864e5; };
+const tenths = share => Math.round(share * 10);
+const odds = share => { const n = tenths(share); return n >= 10 ? "every year" : n <= 0 ? "almost never" : `${n} year${n === 1 ? "" : "s"} in 10`; };
+const PRIO = {soil: "building soil", risk: "a sure thing", profit: "income"};
+let point = {lat: 39.5179, lon: -84.4791}, priority = "soil", last = null;
+
+const yr = new Date().getFullYear();
+$("#soy").value = `${yr}-10-01`; $("#corn").value = `${yr}-10-15`;
+
+/* ---------- map: aerial photo by default, so a farmer can spot their own field ---------- */
+const map = L.map("map").setView([40.2, -82.8], 7);
+const aerial = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  {maxZoom: 19, attribution: "Imagery © Esri, Maxar, Earthstar Geographics"}).addTo(map);
+const roads = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom: 19, attribution: "© OpenStreetMap"});
+L.control.layers({"Aerial photo": aerial, "Road map": roads}, null, {collapsed: false}).addTo(map);
+const marker = L.marker([point.lat, point.lon]).addTo(map);
+function setPoint(lat, lon, label) {
+  point = {lat, lon}; marker.setLatLng([lat, lon]);
+  $("#loc").textContent = label || `Pin set at ${lat.toFixed(4)}, ${lon.toFixed(4)}. Press Check my field.`;
+}
+map.on("click", e => setPoint(e.latlng.lat, e.latlng.lng));
+$("#find").addEventListener("submit", async e => {
+  e.preventDefault();
+  const q = $("#addr").value.trim(); if (!q) return;
+  $("#loc").textContent = "Searching…";
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=${encodeURIComponent(q)}`);
+    const [hit] = await r.json();
+    if (!hit) { $("#loc").textContent = `No match for “${q}”. Try a town name, or click the map.`; return; }
+    map.setView([+hit.lat, +hit.lon], 14);
+    setPoint(+hit.lat, +hit.lon, `Found ${hit.display_name.split(",").slice(0, 2).join(",")}. Now click your field on the map.`);
+  } catch { $("#loc").textContent = "Search isn't available right now. Click your field on the map instead."; }
+});
+
+document.querySelectorAll("#prio button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("#prio button").forEach(x => x.setAttribute("aria-pressed", "false"));
+  b.setAttribute("aria-pressed", "true"); priority = b.dataset.p;
+  if (last) run();  // re-rank straight away once a field has been checked
+});
+
+/* ---------- planting calendar ---------- */
+const SHORT = {cereal_rye: "Cereal rye", winter_wheat: "Winter wheat", oats_radish: "Oats + radish", double_crop_soy: "Soy after wheat"};
+const ramp = t => {
+  const stops = [[138, 75, 47], [215, 165, 42], [63, 125, 60]];
+  const s = t < .5 ? 0 : 1, f = t < .5 ? t * 2 : (t - .5) * 2;
+  return `rgb(${stops[s].map((c, i) => Math.round(c + (stops[s + 1][i] - c) * f)).join(",")})`;
+};
+function calendar(d, todayMd) {
+  const keys = Object.keys(SHORT);
+  const x0 = doy("06-15"), x1 = doy("12-15"), W = 560, L0 = 118, rowH = 40, top = 26;
+  const X = n => L0 + (n - x0) / (x1 - x0) * (W - L0 - 8);
+  let s = `<svg viewBox="0 0 ${W} ${top + keys.length * rowH + 26}" role="img" aria-label="Planting calendar: how often seeding on each day worked on this field">`;
+  ["07-01", "08-01", "09-01", "10-01", "11-01", "12-01"].forEach(m => {
+    s += `<line x1="${X(doy(m))}" x2="${X(doy(m))}" y1="${top - 6}" y2="${top + keys.length * rowH}" stroke="#d5dccf"/>
+          <text class="tick" x="${X(doy(m)) + 3}" y="${top - 10}">${fmt(m).split(" ")[0]}</text>`;
+  });
+  keys.forEach((k, i) => {
+    const o = d.options[k], y = top + i * rowH + 6;
+    s += `<text class="row-label" x="0" y="${y + 15}">${SHORT[k]}</text>`;
+    o.curve.forEach(p => {
+      const n = doy(p.md); if (n < x0 || n > x1) return;
+      s += `<rect x="${X(n)}" y="${y}" width="${X(n + 1) - X(n) + .4}" height="20" fill="${ramp(p.share)}"><title>Seeded ${fmt(p.md)}: worked ${odds(p.share)}</title></rect>`;
+    });
+    if (o.p90) {
+      const xx = X(doy(o.p90));
+      s += `<line x1="${xx}" x2="${xx}" y1="${y - 3}" y2="${y + 23}" stroke="#23362b" stroke-width="2"/>
+            <text class="dl" x="${Math.min(xx + 4, W - 50)}" y="${y + 33}">${fmt(o.p90)}</text>`;
+    }
+  });
+  if (todayMd) {
+    const n = doy(todayMd);
+    if (n >= x0 && n <= x1) s += `<line x1="${X(n)}" x2="${X(n)}" y1="${top - 4}" y2="${top + keys.length * rowH}" stroke="#2c5d86" stroke-width="2.5" stroke-dasharray="4 3"/>
+      <text class="today" text-anchor="end" x="${X(n) - 4}" y="${top + keys.length * rowH + 16}">Today, ${fmt(todayMd)}</text>`;
+  }
+  return s + "</svg>";
+}
+function verdicts(d, season) {
+  const warmOpenFall = season && season.fall && !season.fall.first_freeze && season.fall.temp_anomaly_c > 0;
+  return `<ul class="verdicts">${Object.keys(SHORT).map(k => {
+    const o = d.options[k], name = o.label.replace(/ \(.*\)/, "").toLowerCase();
+    if (!o.p90 && !o.p80) return `<li class="late"><b class="big">${esc(o.label)}</b><span class="sub">Rarely works on this field with your harvest dates.</span></li>`;
+    const past = o.today && o.today.md > (o.p50 || "00-00");
+    const sh = o.shift && o.shift.days;
+    const moved = sh ? ` That's ${Math.abs(sh)} day${Math.abs(sh) === 1 ? "" : "s"} ${sh > 0 ? "later" : "earlier"} than it used to be.` : "";
+    const today = o.today && o.today.share !== null ? (tenths(o.today.share) <= 0 ? "Seeded today, it almost never works. " : `Seeded today, it works ${odds(o.today.share)}. `) : "";
+    const note = past ? (warmOpenFall && k === "cereal_rye" ? "Past the safe date, but this warm fall makes late rye worth a try." : "Too late this year. Mark it for next year.") : "";
+    return `<li class="${past ? "late" : ""}"><b class="big">${esc(SHORT[k])}: plant by ${fmt(o.p90 || o.p80)}</b>
+      <span class="sub">Works ${o.p90 ? "9" : "8"} years in 10 if seeded by then.${moved} ${today}${note}</span></li>`;
+  }).join("")}</ul>`;
+}
+
+/* ---------- this fall, live ---------- */
+function fallBlock(s) {
+  if (!s || !s.fall) return "";
+  const f = s.fall, thru = new Date(s.data_through + "T12:00:00");
+  const tF = Math.round(Math.abs(f.temp_anomaly_c) * 1.8 * 10) / 10, warm = f.temp_anomaly_c >= 0;
+  const [n, of] = f.warmer_than_n_of;
+  const rank = warm && n === of ? `the warmest fall in ${of + 1} years` : warm ? `warmer than ${n} of the last ${of} falls` : `cooler than ${of - n} of the last ${of} falls`;
+  const nf = new Date(f.normal_first_freeze + "T12:00:00");
+  let freeze;
+  if (f.first_freeze) {
+    const ff = new Date(f.first_freeze + "T12:00:00"), dd = f.first_freeze_vs_normal_days;
+    freeze = `First hard freeze (28 °F) came ${MON[ff.getMonth()]} ${ff.getDate()}, ${Math.abs(dd)} days ${dd > 0 ? "later" : "earlier"} than normal.`;
+  } else freeze = `<b>No hard freeze (28 °F) yet</b>; it usually comes around ${MON[nf.getMonth()]} ${nf.getDate()}.`;
+  const advice = warm && !f.first_freeze
+    ? " If a field is still bare, cereal rye seeded this week can still get growing before winter."
+    : "";
+  return `<div class="fall"><h3>This fall on your field</h3>
+    <p>Since Sep 1 it has run <b>${tF} °F ${warm ? "warmer" : "cooler"} than normal</b>, ${rank}, with ${f.rain_pct_of_normal}% of normal rain. ${freeze}${advice}</p>
+    <p class="hint" style="margin-top:6px">Weather through ${MON[thru.getMonth()]} ${thru.getDate()}.</p></div>`;
+}
+
+/* ---------- options ---------- */
+function strip(o) {
+  return `<div class="strip" aria-label="Year by year results">${o.per_year.map(p => {
+    const wet = p.spring_ok === false && o.id === "rye_after_soy";
+    const cls = !p.ok ? "no" : wet ? "warn" : "ok";
+    const tip = `${p.year}: ${!p.ok ? "didn't work" : wet ? "grew, but next spring was too wet" : "worked"}`;
+    return `<span class="${cls}" title="${tip}"></span>`;
+  }).join("")}</div>`;
+}
+function optCard(o, best) {
+  const b = o.benefits, bar = (n, v) => `<span>${n}</span><span style="--v:${v * 20}%"></span>`;
+  return `<article class="opt">
+    <div class="opt-head"><h3>${esc(o.name)}</h3>${best ? `<span class="best">Best fit for ${PRIO[priority]}</span>` : ""}</div>
+    <div class="odds">Worked ${odds(o.success_years / o.years)} <small>(${o.success_years} of the last ${o.years} seasons on this field)</small></div>
+    ${strip(o)}
+    <div class="legend">One square per year, ${o.per_year[0].year} to ${o.per_year.at(-1).year}. Green worked, brown didn't${o.id === "rye_after_soy" ? ", gold grew but the next spring was too wet to kill it in time" : ""}.</div>
+    ${o.risks.map(r => `<div class="risk">${esc(r)}</div>`).join("")}
+    <div class="bars">${bar("Soil", b.soil)}${bar("Nitrogen", b.nitrogen)}${bar("Breaks pests", b.pest_break)}${bar("Income", b.income)}</div>
+  </article>`;
+}
+
+/* ---------- this week on the field (forecast) ---------- */
+const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+async function loadWeek(a) {
+  const box = $("#week");
+  try {
+    let w;
+    if (STATIC) w = await staticWeek(a);
+    else { const r = await fetch(`/api/week?lat=${a.location.lat}&lon=${a.location.lon}`); w = await r.json(); if (!r.ok) throw new Error(w.detail); }
+    const days = w.days, work = days.filter(d => d.workable), freezes = days.filter(d => d.low_f <= 28);
+    const soak = days.findIndex(d => d.rain_in >= 0.25);
+    const tiles = days.map(d => { const dt = new Date(d.date + "T12:00:00");
+      return `<div class="day ${d.workable ? "fit" : "wet"}"><b>${DOW[dt.getDay()]}</b><span>${d.high_f}° / ${d.low_f}°</span>
+        <span>${d.rain_in >= 0.01 ? d.rain_in.toFixed(2) + " in" : "dry"}</span><em>${d.workable ? "Field day" : "Too wet"}</em>${d.low_f <= 28 ? `<i>Hard freeze</i>` : ""}</div>`; }).join("");
+    let advice;
+    const first = work[0] && new Date(work[0].date + "T12:00:00");
+    if (!work.length) advice = "No dry field days in the forecast. Wait it out; seeding into wet ground packs the soil.";
+    else if (soak > 0 && days.slice(0, soak).some(d => d.workable)) {
+      const rd = new Date(days[soak].date + "T12:00:00");
+      advice = `Best window: drill on ${DOW[first.getDay()]}, ahead of the ${days[soak].rain_in.toFixed(2)} in of rain on ${DOW[rd.getDay()]} that will get the seed up.`;
+    } else advice = `${work.length} field day${work.length === 1 ? "" : "s"} this week, starting ${DOW[first.getDay()]}. Little rain forecast, so drill into moisture, about 1 to 1.5 in deep.`;
+    box.innerHTML = `<div class="days">${tiles}</div><p class="weekline"><b>${advice}</b>${freezes.length ? ` ${freezes.length} hard-freeze night${freezes.length === 1 ? "" : "s"} (28 °F or colder) ahead: rye still germinates, but oats and radish won't establish now.` : ""}</p>
+      <p class="hint">Forecast from Open-Meteo. A field day means under 0.08 in of rain that day and under 0.3 in the two days before, the same rule FieldWise checked against 25 years of USDA field reports.</p>`;
+  } catch { box.innerHTML = `<p class="hint">The 7-day forecast isn't available right now.</p>`; }
+}
+
+/* ---------- yields and money ---------- */
+const MONEY = {price_corn: 4.30, price_soybeans: 10.50, price_wheat: 5.60, cost_corn: 520, cost_soybeans: 280, cost_wheat: 290, cost_dcsoy: 200, cost_cover: 35, pay_cover: 0};
+const CROPNAME = {corn: "Corn", soybeans: "Soybeans", wheat: "Wheat"};
+const $$ = n => `$${Math.round(n).toLocaleString()}`;
+function moneyInputs() {
+  const f = (k, label, step) => `<label class="money">${label}<input type="number" step="${step}" data-k="${k}" value="${MONEY[k]}"></label>`;
+  return `<details class="prices"><summary>Your prices and costs (change these to yours)</summary>
+    <div class="moneygrid">
+      ${f("price_corn", "Corn $/bu", .05)}${f("price_soybeans", "Soybeans $/bu", .05)}${f("price_wheat", "Wheat $/bu", .05)}
+      ${f("cost_corn", "Corn cost $/acre", 5)}${f("cost_soybeans", "Soybean cost $/acre", 5)}${f("cost_wheat", "Wheat cost $/acre", 5)}
+      ${f("cost_dcsoy", "Double-crop soy cost $/acre", 5)}${f("cost_cover", "Cover crop seed + seeding $/acre", 1)}${f("pay_cover", "Cost-share you get $/acre", 1)}
+    </div>
+    <p class="hint">Costs are seed, fertilizer, chemicals, machinery and drying, not land rent (that's the same either way). The starting numbers are rough Ohio averages.</p></details>`;
+}
+function yieldBlock(a) {
+  const y = a.yields; if (!y || !y.crops.corn) return "";
+  const rows = ["corn", "soybeans", "wheat"].filter(k => y.crops[k]).map(k => {
+    const c = y.crops[k], p = MONEY["price_" + k], cost = MONEY["cost_" + k];
+    const worst = [...c.per_year].sort((u, v) => u.yield - v.yield).slice(0, 2);
+    const why = worst.map(w => `${w.year}${w.why ? ` (${w.why})` : ""}`).join(", ");
+    return `<tr><th scope="row">${CROPNAME[k]}</th><td><b>${c.typical}</b> bu</td><td>${c.bad_year} bu</td><td class="${c.typical * p - cost >= 0 ? "pos" : "neg"}"><b>${$$(c.typical * p - cost)}</b></td><td>${$$(c.bad_year * p - cost)}</td></tr>
+      <tr class="why"><td></td><td colspan="4">Worst seasons here: ${why}</td></tr>`;
+  }).join("");
+  return `<table class="ytab"><thead><tr><th></th><th>Typical yield</th><th>Bad year (1 in 10)</th><th>Return over costs, $/acre</th><th>In a bad year</th></tr></thead><tbody>${rows}</tbody></table>
+    <p class="hint">${y.county} County, replayed through this field's last 25 seasons of NASA weather at ${new Date().getFullYear() + 1} yield levels. Corn and soybeans come from our weather model, trained on USDA county yields; wheat weather didn't predict well enough, so wheat uses ${y.county} County's actual USDA wheat record.</p>`;
+}
+function thirdCrop(a) {
+  const y = a.yields; if (!y || !y.crops.wheat) return "";
+  const t = k => y.crops[k].typical, opt = id => a.ranked.find(o => o.id === id);
+  const wheatOpt = opt("wheat"), dc = opt("wheat_dcsoy");
+  const wheatOdds = wheatOpt ? wheatOpt.success_years / wheatOpt.years : 0, dcOdds = dc ? dc.success_years / dc.years : 0;
+  const m = k => t(k) * MONEY["price_" + k] - MONEY["cost_" + k];
+  const dcYield = Math.round(t("soybeans") * 0.75), dcMargin = dcOdds * (dcYield * MONEY.price_soybeans - MONEY.cost_dcsoy);
+  const twoYr = (m("corn") + m("soybeans")) / 2;
+  const threeYr = (m("corn") + m("soybeans") + m("wheat")) / 3, threeDc = (m("corn") + m("soybeans") + m("wheat") + Math.max(0, dcMargin)) / 3;
+  const best = Math.max(threeYr, threeDc), diff = best - twoYr, withDc = threeDc > threeYr + 1;
+  let verdict, cls;
+  if (wheatOdds < 0.7) { verdict = "Not here: wheat can't be planted in time often enough after your soybean harvest."; cls = "neg"; }
+  else if (diff >= 15) { verdict = `Yes. Adding wheat${withDc ? " with double-crop soybeans" : ""} pays about ${$$(diff)} more per acre each year.`; cls = "pos"; }
+  else if (diff >= -15) { verdict = `It's a close call on money (${diff >= 0 ? "+" : "−"}${$$(Math.abs(diff))} per acre a year). Add wheat if you want the soil, weed and workload benefits.`; cls = "mid"; }
+  else { verdict = `Not on the money: corn and soybeans earn about ${$$(-diff)} more per acre a year at these prices. Wheat still helps soil and breaks pest cycles.`; cls = "neg"; }
+  return `<div class="decide ${cls}"><p class="big">${verdict}</p>
+    <div class="compare">
+      <div><span>Corn–soybean</span><b>${$$(twoYr)}</b><small>per acre per year</small></div>
+      <div><span>Corn–soybean–wheat</span><b>${$$(threeYr)}</b><small>per acre per year</small></div>
+      <div><span>…plus double-crop soybeans</span><b>${$$(threeDc)}</b><small>per acre per year</small></div>
+    </div>
+    <ul class="checks">
+      <li>Wheat gets planted on time here <b>${odds(wheatOdds)}</b> after your soybean harvest.</li>
+      <li>Double-crop soybeans after wheat harvest work <b>${odds(dcOdds)}</b>, at about ${dcYield} bu (three-quarters of full-season beans).</li>
+      <li>Wheat spreads out your work: harvest in July, not October.</li>
+    </ul></div>`;
+}
+function coverMoney() {
+  const net = MONEY.cost_cover - MONEY.pay_cover;
+  return `<p class="hint" style="margin-top:6px">A cover crop costs you about <b>${$$(net)}</b> per acre after cost-share${MONEY.pay_cover ? "" : ". Ohio farmers can often get paid for cover crops through NRCS EQIP or H2Ohio; enter that payment above"}.</p>`;
+}
+
+/* ---------- soil ---------- */
+function soilBlock(s, c) {
+  if (!s) return `<p>No soil survey record for this spot.</p>`;
+  const om = s.organic_matter_pct, ph = s.ph, w = s.water_holding_in;
+  const notes = [];
+  if (ph != null && ph < 6.0) notes.push(`pH ${ph} is on the low side for wheat and alfalfa; a soil test will tell you if it needs lime.`);
+  if (w != null && w < 5) notes.push(`Holds only ${w} in of water in the root zone, so dry spells hurt here; living cover that saves moisture helps.`);
+  if (om != null && om < 2) notes.push(`Organic matter is low (${om}%); this is where cover crops pay back the most over time.`);
+  return `<div class="facts">
+      <div><b>${esc(s.component)} ${s.map_unit && /silt loam|clay loam|loam|clay|sand/i.test(s.map_unit) ? esc((s.map_unit.match(/(silty clay loam|silt loam|clay loam|sandy loam|loam|clay|sand)/i) || [""])[0]) : "soil"}</b><span>${esc((s.drainage || "drainage unknown").toLowerCase())}${s.slope_pct != null ? `, ${s.slope_pct}% slope` : ""}</span></div>
+      <div><b>${om != null ? om + "%" : "—"}</b><span>organic matter in the topsoil</span></div>
+      <div><b>${w != null ? w + " in" : "—"}</b><span>water the root zone can hold</span></div>
+      <div><b>${ph != null ? ph : "—"}</b><span>topsoil pH</span></div>
+      <div><b>${esc(c.avg_first_fall_freeze)}</b><span>usual first hard freeze in fall</span></div>
+      <div><b>${esc(c.avg_last_spring_freeze)}</b><span>usual last freeze in spring</span></div>
+    </div>
+    ${s.farmland ? `<p class="hint">${esc(s.farmland)}.</p>` : ""}
+    ${notes.map(n => `<div class="risk">${esc(n)}</div>`).join("")}`;
+}
+
+/* ---------- dated plan for the next 12 months ---------- */
+const addMd = (md, n) => { const [m, d] = md.split("-").map(Number); const t = new Date(Date.UTC(2001, m - 1, d) + n * 864e5);
+  return `${String(t.getUTCMonth() + 1).padStart(2, "0")}-${String(t.getUTCDate()).padStart(2, "0")}`; };
+function nextDate(md, todayIso) {
+  const t = new Date(todayIso + "T12:00:00"); let d = new Date(`${t.getFullYear()}-${md}T12:00:00`);
+  if (d < t) d = new Date(`${t.getFullYear() + 1}-${md}T12:00:00`);
+  return d;
+}
+const INSURANCE = `<div class="risk"><b>Keep your crop insurance.</b> Ohio is in USDA's cover crop zone 4: kill the cover crop at planting or within 5 days after, and before the cash crop comes up. Rules can change, so confirm with your insurance agent each year (<a href="https://www.rma.usda.gov/News-Room/Frequently-Asked-Questions/2020-Cover-Crops-Insurance-and-NRCS-Cover-Crop-Termination-Guidelines" target="_blank" rel="noopener">USDA rules</a>).</div>`;
+function todoBlock(a) {
+  const best = a.ranked.find(o => o.kind === "cover"); if (!best || !a.fly_on) return "";
+  const A = a.assumptions, oats = best.id === "oats_radish_after_soy", afterSoy = best.id !== "rye_after_corn";
+  const crop = afterSoy ? "soybeans" : "corn", hv = afterSoy ? A.soy_harvest : A.corn_harvest, fo = a.fly_on[crop];
+  const rye = a.deadlines.options.cereal_rye, ryeBy = rye.p90 || rye.p80;
+  const seedName = oats ? "oats and radish" : "cereal rye";
+  const flyOn = fo.drilled_fit < 0.8;
+  const seedMd = flyOn ? addMd(fo.seed_md, -7) : addMd(hv, 3);
+  const items = [
+    {md: addMd(seedMd, -45), t: "Ask about cover crop cost-share, at the latest",
+     why: "Call your county Soil and Water Conservation District about H2Ohio and USDA EQIP payments. Sign-up deadlines vary and can be months earlier, and most programs need you enrolled before you plant."},
+    {md: addMd(seedMd, -14), t: `Order ${seedName} seed`, why: flyOn ? "Seeding into a standing crop takes more seed than drilling, so order extra." : "Have it in the shed before harvest so you can drill the same week."},
+    flyOn
+      ? {md: seedMd, t: `Fly ${seedName} into standing ${crop}, through ${fmt(addMd(fo.seed_md, 7))}`,
+         why: `Your ${fmt(hv)} harvest is too late to drill rye safely here (it worked ${odds(fo.drilled_fit)}). Seed by plane, drone or high-clearance seeder just ahead of a forecast half-inch rain: that worked ${odds(fo.fit)}.`}
+      : {md: addMd(hv, 3), t: `Drill ${seedName} right after ${crop} come off`,
+         why: `Last safe day on this field is ${fmt(oats ? (a.deadlines.options.oats_radish.p90 || a.deadlines.options.oats_radish.p80) : ryeBy)}. Use "This week" to find a dry day ahead of rain.`},
+    oats
+      ? {md: addMd(A.corn_plant, -14), t: "Nothing to kill this spring", why: "Oats and radish die over winter. Plant corn as usual into the residue."}
+      : afterSoy
+        ? {md: addMd(A.corn_plant, -14), t: "Kill the rye, about 2 weeks before corn planting",
+           why: "Rye left longer ties up nitrogen and slows corn. Plan a little extra starter nitrogen for the corn."}
+        : {md: addMd(A.corn_plant, 10), t: "Plant soybeans into the rye, then kill it",
+           why: "Soybeans handle planting green. Kill the rye at planting or within 5 days after (see the insurance note)."},
+  ];
+  const rows = items.map(x => ({...x, d: nextDate(x.md, a.today)})).sort((p, q) => p.d - q.d);
+  if (!oats && rows[0].t === items[3].t) rows[0].t = `If you seeded rye this fall: ${rows[0].t.charAt(0).toLowerCase()}${rows[0].t.slice(1)}`;
+  PLAN = rows;
+  return `<p class="lede">For ${esc(best.name.toLowerCase())}, the best cover crop for ${PRIO[priority]} on this field.</p>
+    <ol class="todo">${rows.map(x => `<li><time datetime="${x.d.toISOString().slice(0, 10)}">${MON[x.d.getMonth()]} ${x.d.getDate()}<small>${x.d.getFullYear()}</small></time>
+      <div><b>${esc(x.t)}</b><span>${x.why}</span></div></li>`).join("")}</ol>
+    <div class="acts"><button class="btn2" type="button" onclick="downloadIcs()">Add these dates to my phone calendar</button>
+      <button class="btn2" type="button" onclick="copyLink(this)">Copy a link to this field</button></div>
+    ${INSURANCE}
+    ${oats ? "" : `<p class="hint">Why it's worth it: in Iowa State's review of field studies, a cereal rye cover crop cut nitrate in the water draining off fields by about 31% on average. The same review found corn after rye can yield a little less (about 6%), which is why the plan kills the rye 2 weeks before corn planting (<a href="https://www.agronext.iastate.edu/soilfertility/info/SP435.pdf" target="_blank" rel="noopener">Iowa State</a>).</p>`}`;
+}
+
+/* ---------- calendar file and share link ---------- */
+let PLAN = [];
+function downloadIcs() {
+  const d8 = d => d.toISOString().slice(0, 10).replace(/-/g, "");
+  const clean = t => String(t).replace(/<[^>]+>/g, "").replace(/([,;\\])/g, "\\$1").replace(/\n/g, " ");
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z";
+  const ev = PLAN.map((x, i) => {
+    const end = new Date(x.d.getTime() + 864e5);
+    return ["BEGIN:VEVENT", `UID:fieldwise-${d8(x.d)}-${i}@fieldwise`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${d8(x.d)}`,
+      `DTEND;VALUE=DATE:${d8(end)}`, `SUMMARY:FieldWise: ${clean(x.t)}`, `DESCRIPTION:${clean(x.why)} Field: ${shareUrl()}`,
+      "BEGIN:VALARM", "TRIGGER:-P2D", "ACTION:DISPLAY", `DESCRIPTION:${clean(x.t)}`, "END:VALARM", "END:VEVENT"].join("\r\n");
+  });
+  const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//FieldWise//EN", "CALSCALE:GREGORIAN", ...ev, "END:VCALENDAR"].join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([ics], {type: "text/calendar"})); a.download = "fieldwise-plan.ics"; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function shareUrl() {
+  const q = new URLSearchParams({lat: point.lat.toFixed(5), lon: point.lon.toFixed(5), soy: $("#soy").value, corn: $("#corn").value, p: priority});
+  return `${location.origin}${location.pathname}?${q}`;
+}
+async function copyLink(btn) {
+  const u = shareUrl();
+  try { await navigator.clipboard.writeText(u); btn.textContent = "Link copied"; }
+  catch { prompt("Copy this link:", u); }
+  setTimeout(() => { btn.textContent = "Copy a link to this field"; }, 2500);
+}
+
+/* ---------- is this field's fall changing? ---------- */
+function changeBlock(a) {
+  const c = a.climate, ser = c && c.series && c.series.first_freeze_doy; if (!ser) return "";
+  const ys = Object.keys(ser).map(Number).sort((p, q) => p - q), vs = ys.map(y => ser[y]);
+  if (ys.length < 10) return "";
+  const n = ys.length, mx = ys.reduce((p, q) => p + q) / n, mv = vs.reduce((p, q) => p + q) / n;
+  const b = ys.reduce((s2, y, i) => s2 + (y - mx) * (vs[i] - mv), 0) / ys.reduce((s2, y) => s2 + (y - mx) ** 2, 0);
+  const W = 640, H = 210, L0 = 54, R0 = 12, T0 = 12, B0 = 30;
+  const lo = Math.min(...vs) - 4, hi = Math.max(...vs) + 4;
+  const X = y => L0 + (y - ys[0]) / (ys[n - 1] - ys[0]) * (W - L0 - R0), Y = v => T0 + (hi - v) / (hi - lo) * (H - T0 - B0);
+  const dlab = v => { const t = new Date(Date.UTC(2001, 0, 1) + (v - 1) * 864e5); return `${MON[t.getUTCMonth()]} ${t.getUTCDate()}`; };
+  const ticks = [lo + 4, (lo + hi) / 2, hi - 4].map(Math.round);
+  let g = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Date of the first hard freeze each fall, ${ys[0]} to ${ys[n - 1]}, with trend line">`;
+  ticks.forEach(t => g += `<line x1="${L0}" x2="${W - R0}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--rule)"/><text class="ax" x="${L0 - 6}" y="${Y(t) + 4}" text-anchor="end">${dlab(t)}</text>`);
+  [ys[0], Math.round((ys[0] + ys[n - 1]) / 2), ys[n - 1]].forEach(y => g += `<text class="ax" x="${X(y)}" y="${H - 8}" text-anchor="middle">${y}</text>`);
+  g += `<line x1="${X(ys[0])}" y1="${Y(mv + b * (ys[0] - mx))}" x2="${X(ys[n - 1])}" y2="${Y(mv + b * (ys[n - 1] - mx))}" stroke="var(--crop)" stroke-width="3"/>`;
+  ys.forEach((y, i) => g += `<circle cx="${X(y)}" cy="${Y(vs[i])}" r="5" fill="var(--water)"><title>${y}: ${dlab(vs[i])}</title></circle>`);
+  g += "</svg>";
+  const dec = Math.round(b * 10 * 10) / 10, total = Math.round(b * (ys[n - 1] - ys[0]));
+  const sh = a.deadlines.options.cereal_rye && a.deadlines.options.cereal_rye.shift;
+  const hr = c.heavy_rain_trend_per_decade;
+  const facts = [
+    `<div><b>${Math.abs(total) < 3 ? "About the same" : `${Math.abs(total)} days ${total > 0 ? "later" : "earlier"}`}</b><span>first hard freeze, trend over ${ys[0]}–${ys[n - 1]}</span></div>`,
+    sh && sh.days != null ? `<div><b>${sh.days === 0 ? "Same date" : `${Math.abs(sh.days)} days ${sh.days > 0 ? "later" : "earlier"}`}</b><span>last safe day for cereal rye, ${esc(sh.recent_years)} vs ${esc(sh.early_years)}</span></div>` : "",
+    hr != null ? `<div><b>${hr > 0 ? "+" : ""}${hr} a decade</b><span>days a year with 1 inch of rain or more (${c.heavy_rain_days_per_year} a year on average)</span></div>` : "",
+  ].join("");
+  const rs = sh && sh.days != null ? sh.days : 0;
+  const read = rs <= -3 ? `In recent years the last safe day for rye has come ${-rs} days earlier than it used to on this field. Don't count on a long fall: aim for the early side of the dates above.`
+    : rs >= 3 ? `In recent years the last safe day for rye has come ${rs} days later than it used to on this field. The dates above use all 25 years, so they lean cautious.`
+    : total <= -3 ? "The first freeze is trending earlier here. Aim for the early side of the dates above."
+    : "Your fall window hasn't moved much, so the dates above should hold.";
+  return `<p class="lede">Each dot is the first hard freeze (28 °F) of one fall on this field, from NASA's daily record. The green line is the trend. Single years swing a lot, so treat the trend as a lean, not a promise.</p>
+    <div class="trend">${g}</div><div class="facts3">${facts}</div><p>${read}</p>`;
+}
+
+/* ---------- harvest running late: seed rye into the standing crop ---------- */
+function lateBlock(a) {
+  const f = a.fly_on; if (!f) return "";
+  const row = (crop, v, stage) => {
+    const late = v.drilled_fit < 0.8;
+    return `<li class="${late ? "" : "spare"}"><b class="big">${late ? "Do this" : "Backup plan"}: fly rye into standing ${crop}, ${fmt(addMd(v.seed_md, -7))} to ${fmt(addMd(v.seed_md, 7))}</b>
+      <span class="sub">That's ${stage}. Timed just ahead of a half-inch rain, it sprouted ${odds(v.fit)} (${v.success_years} of the last ${v.years} seasons).
+      Drilled after your ${fmt(v.harvest_md)} harvest instead, rye worked ${odds(v.drilled_fit)}.</span></li>`;
+  };
+  return `<ul class="verdicts">${row("soybeans", f.soybeans, "when soybean leaves start turning yellow")}${row("corn", f.corn, "once corn reaches black layer")}</ul>`;
+}
+
+function render(a) {
+  const s = a.soil, d = a.deadlines, todayMd = a.today.slice(5);
+  const covers = a.ranked.filter(o => o.kind === "cover"), thirds = a.ranked.filter(o => o.kind === "rotation");
+  $("#out").innerHTML = `
+    <h2 style="margin-top:0">What we'd do on this field</h2>
+    <div class="answer" id="reco"><p><i>Writing your summary…</i></p></div>
+    ${fallBlock(a.this_season)}
+
+    <h2>Your plan for the next 12 months</h2>
+    ${todoBlock(a)}
+
+    <h2>This week on your field</h2>
+    <div id="week"><p class="hint">Loading the 7-day forecast…</p></div>
+
+    <h2>Your planting deadlines</h2>
+    <p class="lede">How often seeding on each day worked on this field over the last 25 years. The black mark is your last safe day.</p>
+    <div class="cal">${calendar(d, todayMd)}</div>
+    <div class="scale"><span>never worked</span><i></i><span>always worked</span></div>
+    ${verdicts(d, a.this_season)}
+
+    <h2>Harvest running late?</h2>
+    <p class="lede">Seed rye into the standing crop weeks before harvest. It needs a soaking rain within a week to sprout, so we replayed every season to see how often that came.</p>
+    ${lateBlock(a)}
+
+    <h2>Is your fall changing?</h2>
+    ${changeBlock(a)}
+
+    <h2>Should you add wheat as a third crop?</h2>
+    <div id="third">${thirdCrop(a)}</div>
+
+    <h2>What each crop would make on this field</h2>
+    <div id="ytab">${yieldBlock(a)}</div>
+    ${moneyInputs()}
+
+    <h2>Keep corn and soybeans, add a cover crop</h2>
+    <div id="covermoney">${coverMoney()}</div>
+    ${covers.map((o, i) => optCard(o, i === 0)).join("")}
+    <h2>Third-crop options</h2>
+    ${thirds.map((o, i) => optCard(o, i === 0)).join("")}
+
+    <h2>Your field</h2>
+    ${soilBlock(s, a.climate)}
+    ${a.soil_notes.map(n => `<div class="risk">${esc(n)}</div>`).join("")}
+
+    <div class="foot">
+      <button class="go" onclick="window.print()">Print my field plan</button>
+      <span class="hint">Based on NASA daily weather for this spot since 2001, USDA county yields and the USDA soil survey.</span>
+    </div>`;
+  document.querySelectorAll(".prices input").forEach(inp => inp.addEventListener("input", () => {
+    const v = parseFloat(inp.value); if (isNaN(v)) return;
+    MONEY[inp.dataset.k] = v;
+    $("#third").innerHTML = thirdCrop(a); $("#ytab").innerHTML = yieldBlock(a); $("#covermoney").innerHTML = coverMoney();
+  }));
+  loadWeek(a);
+}
+
+async function explain(a) {
+  if (STATIC) { $("#reco").innerHTML = a.by_priority[a.priority].explain.split(/\n\n?/).filter(Boolean).map(p => `<p>${esc(p)}</p>`).join(""); return; }
+  try {
+    const r = await fetch("/api/explain", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({analysis: a})});
+    const j = await r.json();
+    $("#reco").innerHTML = j.text.split(/\n\n?/).filter(Boolean).map(p => `<p>${esc(p)}</p>`).join("") +
+      (j.source === "ai" ? "<small>Summary written by AI from this field's results.</small>" : "");
+  } catch { $("#reco").innerHTML = "<p>Your results are below.</p>"; }
+}
+
+/* ---------- GitHub Pages: no Python server, so use results precomputed per NASA grid cell ---------- */
+const STATIC = document.documentElement.dataset.static === "1";
+let SNAPIDX = null;
+const doyMd = m => { const [a, b] = m.split("-").map(Number); return (Date.UTC(2001, a - 1, b) - Date.UTC(2001, 0, 1)) / 864e5; };
+async function staticAnalyze() {
+  SNAPIDX = SNAPIDX || await (await fetch("snap/index.json")).json();
+  const [dl, dn] = SNAPIDX.cell_deg, kx = Math.cos(point.lat * Math.PI / 180);
+  const cell = SNAPIDX.cells.reduce((b, c) => Math.hypot(c.lat - point.lat, (c.lon - point.lon) * kx) < Math.hypot(b.lat - point.lat, (b.lon - point.lon) * kx) ? c : b);
+  if (Math.abs(cell.lat - point.lat) > dl * 0.6 || Math.abs(cell.lon - point.lon) > dn * 0.6)
+    throw new Error("This web version covers Ohio farmland. Pick a field in Ohio, or run FieldWise on your own computer for anywhere in the US.");
+  const soy = md($("#soy").value) || "10-01", corn = md($("#corn").value) || "10-15";
+  const name = Object.keys(SNAPIDX.presets).reduce((b, k) => {
+    const d = k2 => Math.abs(doyMd(SNAPIDX.presets[k2][0]) - doyMd(soy)) + Math.abs(doyMd(SNAPIDX.presets[k2][1]) - doyMd(corn));
+    return d(k) < d(b) ? k : b; });
+  const res = await fetch(`snap/${cell.i}-${name}.json`);
+  if (!res.ok) throw new Error("This part of Ohio is still being added to the web version. Try a field closer to Hamilton, or check back in a few minutes.");
+  const a = await res.json();
+  const bp = a.by_priority[priority], byId = Object.fromEntries(a.ranked.map(o => [o.id, o]));
+  a.ranked = bp.order.map(id => ({...byId[id], scores: bp.scores[id]}));
+  a.priority = priority;
+  const yr = $("#soy").value.slice(0, 4) || String(new Date().getFullYear());
+  $("#soy").value = `${yr}-${a.preset.soy_harvest}`; $("#corn").value = `${yr}-${a.preset.corn_harvest}`;
+  a.static_note = `Web version: results for the NASA weather grid cell around your pin (about 35 miles across; NASA's weather is the same anywhere inside it), with ${name} harvest dates (soybeans ${fmt(a.preset.soy_harvest)}, corn ${fmt(a.preset.corn_harvest)}). Soil is from the middle of that cell. Computed ${fmt(SNAPIDX.built.slice(5))}, ${SNAPIDX.built.slice(0, 4)}. Run FieldWise on your own computer for your exact field and dates.`;
+  return a;
+}
+async function staticWeek(a) {  // same field-day rule as the server's /api/week, straight from Open-Meteo
+  const q = new URLSearchParams({latitude: a.location.lat, longitude: a.location.lon, timezone: "America/New_York", forecast_days: 7, past_days: 2,
+    daily: "precipitation_sum,precipitation_probability_max,temperature_2m_max,temperature_2m_min", temperature_unit: "fahrenheit", precipitation_unit: "inch"});
+  const f = (await (await fetch(`https://api.open-meteo.com/v1/forecast?${q}`)).json()).daily;
+  const rain = f.precipitation_sum.map(x => x || 0), today = new Date().toLocaleDateString("en-CA", {timeZone: "America/New_York"});
+  return {days: f.time.map((d, i) => d < today ? null : {date: d, rain_in: Math.round(rain[i] * 100) / 100, rain_chance: f.precipitation_probability_max[i],
+    high_f: Math.round(f.temperature_2m_max[i]), low_f: Math.round(f.temperature_2m_min[i]),
+    workable: rain[i] < 0.08 && rain.slice(Math.max(0, i - 2), i).reduce((p, x) => p + x, 0) < 0.31}).filter(Boolean)};
+}
+
+const md = v => v ? v.slice(5) : "";
+async function run() {
+  const btn = $("#go"); btn.disabled = true; btn.textContent = "Checking 25 years of weather…";
+  try {
+    if (STATIC) last = await staticAnalyze();
+    else {
+      const q = new URLSearchParams({lat: point.lat, lon: point.lon, priority, soy_harvest: md($("#soy").value), corn_harvest: md($("#corn").value)});
+      const r = await fetch(`/api/analyze?${q}`);
+      if (!r.ok) throw new Error((await r.json()).detail || "We couldn't check that spot. Try clicking a field nearby.");
+      last = await r.json();
+    }
+    render(last); explain(last);
+    if (last.static_note) $("#out").insertAdjacentHTML("afterbegin", `<p class="hint">${esc(last.static_note)}</p>`);
+    history.replaceState(null, "", shareUrl());
+  } catch (e) { $("#out").innerHTML = `<p class="err">${esc(e.message)}</p>`; }
+  finally { btn.disabled = false; btn.textContent = "Check my field"; }
+}
+$("#go").onclick = run;
+(() => {  // open a shared field link: ?lat=..&lon=..&soy=YYYY-MM-DD&corn=YYYY-MM-DD&p=soil
+  const q = new URLSearchParams(location.search), la = parseFloat(q.get("lat")), lo = parseFloat(q.get("lon"));
+  if (isNaN(la) || isNaN(lo)) return;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(q.get("soy") || "")) $("#soy").value = q.get("soy");
+  if (/^\d{4}-\d{2}-\d{2}$/.test(q.get("corn") || "")) $("#corn").value = q.get("corn");
+  const pb = document.querySelector(`[data-p="${q.get("p")}"]`); if (pb) pb.click();
+  setPoint(la, lo); map.setView([la, lo], 14); run();
+})();
+</script>
+</body>
+</html>

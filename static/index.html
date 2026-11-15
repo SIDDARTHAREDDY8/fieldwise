@@ -624,7 +624,9 @@ async function staticAnalyze() {
   const name = Object.keys(SNAPIDX.presets).reduce((b, k) => {
     const d = k2 => Math.abs(doyMd(SNAPIDX.presets[k2][0]) - doyMd(soy)) + Math.abs(doyMd(SNAPIDX.presets[k2][1]) - doyMd(corn));
     return d(k) < d(b) ? k : b; });
-  const a = await (await fetch(`snap/${cell.i}-${name}.json`)).json();
+  const res = await fetch(`snap/${cell.i}-${name}.json`);
+  if (!res.ok) throw new Error("This part of Ohio is still being added to the web version. Try a field closer to Hamilton, or check back in a few minutes.");
+  const a = await res.json();
   const bp = a.by_priority[priority], byId = Object.fromEntries(a.ranked.map(o => [o.id, o]));
   a.ranked = bp.order.map(id => ({...byId[id], scores: bp.scores[id]}));
   a.priority = priority;
