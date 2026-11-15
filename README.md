@@ -113,7 +113,7 @@ Field-level ground truth is the next step.
 
 ## Data sources
 - NASA POWER daily: T2M, T2M_MIN, T2M_MAX, PRECTOTCORR, GWETTOP, TS
-- NASA GIBS map layers: MODIS Terra NDVI (8-day), SMAP L4 surface soil moisture, MODIS true color
+- NASA HLS v2.0 (HLSL30, HLSS30) via NASA CMR-STAC and Earthdata Login (experimental winter-cover check)
 - USDA NRCS Soil Data Access (SSURGO)
 - USDA NASS Quick Stats: Ohio county yields for corn, soybeans, winter wheat (model training); crop progress (validation)
 - US Census county centroids (matching counties to NASA POWER cells)
